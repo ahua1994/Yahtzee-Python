@@ -1,12 +1,13 @@
 from random import random
 from tabulate import tabulate
+from collections import Counter
 import math
 
 
 def main():
     table = [["Section", "1's", "2's", "3's", "4's", "5's", "6's", "3 of a\nKind",
               "4 of a\nKind", "Full\nHouse", "Small\nStr8", "Large\nStr8", "Yahtzee", "Chance"],
-             ["Current\nScore", *[0]*13], ["Score\nTo Add", *[0]*13], ["Finished", *[False]*13]]
+             ["Current\nScore", *[0]*13], ["Score\nTo Add", *[0]*13], ["Completed", *["No"]*13]]
     game(table)
 
 
@@ -22,7 +23,7 @@ def reroll(dice):
     again = None
     select = None
     while rolls <= 3:
-        print("Roll " + str(rolls))
+        print("\nRoll " + str(rolls) + "\n")
         while again not in ["y", "n", "yes", "no"]:
             again = input("Do you want to reroll? Y/N: ").lower()
         if again == "y" or again == "yes":
@@ -60,8 +61,25 @@ def draw_dice(list):
     print([d6[i-1] for i in list])
 
 
-def add_score(table):
-    pass
+def add_score(table, dice):
+    sorted = dice.sort()
+    for i in range(1, 14):
+        if i <= 6:
+            for j in range(5):
+                if dice[j] == i:
+                    table[2][i] += dice[j]
+        elif i == 7 or i == 8:
+            for j in range(1, 7):
+                if dice.count(j) >= i-4:
+                    table[2][i] += sum(dice)
+        elif i == 9:
+            if len(Counter(dice).keys) == 2:
+                table[2][i] += 25
+        elif i == 10:
+            pass
+        elif i == 11:
+            pass
+    return table
 
 
 def score_table(table):
@@ -74,11 +92,13 @@ def game(table):
     turn = 1
     while turn <= 13:
         print("Turn " + str(turn))
-        score_table(table[:2])
+        score_table(table)
         dice = roll()
         draw_dice(dice)
         dice = reroll(dice)
-        add_score(table)
+        table = add_score(table, dice)
+        score_table(table)
+        print("why")
         turn += 1
 
 
