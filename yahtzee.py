@@ -11,26 +11,28 @@ def main():
     game(table)
 
 
-def roll():
+def reroll(table):
     dice = []
     for _ in range(5):
         dice.append(math.ceil(random() * 6))
-    return dice
-
-
-def reroll(dice):
     rolls = 1
     again = None
     select = None
     while rolls <= 3:
+        table = roll_score(table, dice)
+        score_table(table)
         print("\nRoll " + str(rolls) + "\n")
+        draw_dice(dice)
+        table[2] = ["Score\nTo Add", *[0]*13]
+        if rolls == 3:
+            return dice
         while again not in ["y", "n", "yes", "no"]:
-            again = input("Do you want to reroll? Y/N: ").lower()
+            again = input("\nDo you want to reroll? Y/N: ").lower()
         if again == "y" or again == "yes":
             valid = False
             while valid == False:
                 select = input(
-                    "Select Dice Slot(s) to Reroll.\nExample: 1 2 3 4 5 \n").split(" ")
+                    "\nSelect Dice Slot(s) to Reroll.\nExample: 1 2 3 4 5 \n").split(" ")
                 for i in range(len(select)):
                     try:
                         if isinstance(int(select[i]), int) and int(select[i]) > 0 and int(select[i]) < 7:
@@ -61,8 +63,7 @@ def draw_dice(list):
     print([d6[i-1] for i in list])
 
 
-def add_score(table, dice):
-    sorted = dice.sort()
+def roll_score(table, dice):
     for i in range(1, 14):
         if i <= 6:
             for j in range(5):
@@ -73,12 +74,27 @@ def add_score(table, dice):
                 if dice.count(j) >= i-4:
                     table[2][i] += sum(dice)
         elif i == 9:
-            if len(Counter(dice).keys) == 2:
+            rollValues = list(Counter(dice).values())
+            if rollValues == [2, 3] or rollValues == [3, 2]:
                 table[2][i] += 25
         elif i == 10:
+            smstr1 = [1, 2, 3, 4]
+            smstr2 = [2, 3, 4, 5]
+            smstr3 = [3, 4, 5, 6]
+            if any([all(num in dice for num in smstr1),
+                    all(num in dice for num in smstr2),
+                    all(num in dice for num in smstr3)]):
+                table[2][i] += 30
             pass
         elif i == 11:
-            pass
+            dice.sort()
+            if dice == [1, 2, 3, 4, 5] or dice == [2, 3, 4, 5, 6]:
+                table[2][i] += 40
+        elif i == 12:
+            if len(set(dice)) == 1:
+                table[2][i] += 50 if table[3][i] == "No" else 100
+        else:
+            table[2][i] += sum(dice)
     return table
 
 
@@ -92,14 +108,21 @@ def game(table):
     turn = 1
     while turn <= 13:
         print("Turn " + str(turn))
+        dice = reroll(table)
+        # table = add_score(table, dice)
         score_table(table)
-        dice = roll()
-        draw_dice(dice)
-        dice = reroll(dice)
-        table = add_score(table, dice)
-        score_table(table)
-        print("why")
+        # table[2] = ["Score\nTo Add", *[0]*13]
         turn += 1
+
+
+def add_score(table, dice):
+    section = None
+    while (section not in table[0][1:]):
+        section = input("\nEnter Score Section: ")
+        print(table[0][1:])
+    index = table[0].index(section)
+    table[0][index]
+    table[3][index] = True
 
 
 if __name__ == "__main__":
