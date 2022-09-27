@@ -23,12 +23,12 @@ def reroll(table):
         score_table(table)
         print("\nRoll " + str(rolls) + "\n")
         draw_dice(dice)
-        table[2] = ["Score\nTo Add", *[0]*13]
         if rolls == 3:
-            return dice
+            return table
         while again not in ["y", "n", "yes", "no"]:
             again = input("\nDo you want to reroll? Y/N: ").lower()
         if again == "y" or again == "yes":
+            table[2] = ["Score\nTo Add", *[0]*13]
             valid = False
             while valid == False:
                 select = input(
@@ -55,7 +55,7 @@ def reroll(table):
             rolls += 1
         else:
             break
-    return dice
+    return table
 
 
 def draw_dice(list):
@@ -87,8 +87,9 @@ def roll_score(table, dice):
                 table[2][i] += 30
             pass
         elif i == 11:
-            dice.sort()
-            if dice == [1, 2, 3, 4, 5] or dice == [2, 3, 4, 5, 6]:
+            sorted = [*dice]
+            sorted.sort()
+            if sorted == [1, 2, 3, 4, 5] or sorted == [2, 3, 4, 5, 6]:
                 table[2][i] += 40
         elif i == 12:
             if len(set(dice)) == 1:
@@ -108,22 +109,36 @@ def game(table):
     turn = 1
     while turn <= 13:
         print("Turn " + str(turn))
-        dice = reroll(table)
-        # table = add_score(table, dice)
+        table = reroll(table)
+        table = add_score(table)
+        table[2] = ["Score\nTo Add", *[0]*13]
         score_table(table)
-        # table[2] = ["Score\nTo Add", *[0]*13]
         turn += 1
+    print("Game Over! Your Final Score is " + str(sum(table[1][1:])))
 
 
-def add_score(table, dice):
+def add_score(table):
     section = None
-    while (section not in table[0][1:]):
-        section = input("\nEnter Score Section: ")
-        print(table[0][1:])
-    index = table[0].index(section)
-    table[0][index]
-    table[3][index] = True
-
+    categories = ["Section", "1's", "2's", "3's", "4's", "5's", "6's", "3 of a Kind",
+                  "4 of a Kind", "Full House", "Small Str8", "Large Str8", "Yahtzee", "Chance"]
+    while (section not in categories[1:]):
+        print(categories[1:])
+        section = input("Enter a Valid Category: ")
+        try:
+            if table[3][categories.index(section)] == "Yes":
+                print("\nThis Section Has Been Completed\n")
+                section = None
+                continue
+        except:
+            print("Invalid Input")
+            continue
+    index = categories.index(section)
+    table[1][index] += table[2][index]
+    table[3][index] = "Yes"
+    return table
+# Add yahtzee 100 automatically
+# Joker rules?
+# Add bonus if cat 1 to 6 > 63
 
 if __name__ == "__main__":
     main()
