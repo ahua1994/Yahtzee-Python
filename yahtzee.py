@@ -7,7 +7,9 @@ import math
 def main():
     table = [["Section", "1's", "2's", "3's", "4's", "5's", "6's", "3 of a\nKind",
               "4 of a\nKind", "Full\nHouse", "Small\nStr8", "Large\nStr8", "Yahtzee", "Chance"],
-             ["Current\nScore", *[0]*13], ["Score\nTo Add", *[0]*13], ["Completed", *["No"]*13]]
+             ["Current\nScore", *[0]*13], ["Score\nTo Add",
+                                           *[0]*13], ["Completed", *["No"]*13],
+             ["Bonus + Joker", 0], ["Total Score", 0]]
     game(table)
 
 
@@ -21,7 +23,7 @@ def reroll(table):
     while rolls <= 3:
         table = roll_score(table, dice)
         score_table(table)
-        print("\nRoll " + str(rolls) + "\n")
+        print(tabulate([["Roll " + str(rolls)]], tablefmt="grid"))
         draw_dice(dice)
         if rolls == 3:
             return table
@@ -60,7 +62,7 @@ def reroll(table):
 
 def draw_dice(list):
     d6 = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
-    print([d6[i-1] for i in list])
+    print(tabulate([[d6[i-1] for i in list]], tablefmt="grid"))
 
 
 def roll_score(table, dice):
@@ -102,19 +104,23 @@ def roll_score(table, dice):
 def score_table(table):
     # table for all 3 rows, table[:2] for first 2 rows
 
-    print(tabulate(table, tablefmt="grid"))
+    print(tabulate(table[:4], tablefmt="grid"))
+    print(tabulate(table[4:6], tablefmt="grid"))
 
 
 def game(table):
     turn = 1
     while turn <= 13:
-        print("Turn " + str(turn))
+        print(tabulate([["Turn " + str(turn)]], tablefmt="grid"))
         table = reroll(table)
         table = add_score(table)
         table[2] = ["Score\nTo Add", *[0]*13]
-        score_table(table)
+        print(table[1][1:7], "hi")
+        table[4][1] = 35 if sum(table[1][1:7]) >= 63 else 0
+        table[5][1] = sum(table[1][1:]) + table[4][1]
+        # score_table(table)
         turn += 1
-    print("Game Over! Your Final Score is " + str(sum(table[1][1:])))
+    print("Game Over! Your Final Score is " + str(table[5][1]))
 
 
 def add_score(table):
@@ -123,7 +129,7 @@ def add_score(table):
                   "4 of a Kind", "Full House", "Small Str8", "Large Str8", "Yahtzee", "Chance"]
     while (section not in categories[1:]):
         print(categories[1:])
-        section = input("Enter a Valid Category: ")
+        section = input("Enter a Valid Category: ").strip()
         try:
             if table[3][categories.index(section)] == "Yes":
                 print("\nThis Section Has Been Completed\n")
@@ -136,9 +142,9 @@ def add_score(table):
     table[1][index] += table[2][index]
     table[3][index] = "Yes"
     return table
-# Add yahtzee 100 automatically
+# Add 2nd and 3rd yahtzee 100 automatically
 # Joker rules?
-# Add bonus if cat 1 to 6 > 63
+
 
 if __name__ == "__main__":
     main()
