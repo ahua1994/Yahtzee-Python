@@ -9,7 +9,7 @@ def main():
               "4 of a\nKind", "Full\nHouse", "Small\nStr8", "Large\nStr8", "Yahtzee", "Chance"],
              ["Current\nScore", *[0]*13], ["Score\nTo Add",
                                            *[0]*13], ["Completed", *["No"]*13],
-             ["Bonus + Joker", 0], ["Total Score", 0]]
+             ["63 to Bonus", 0], ["Total Score", 0]]
     game(table)
 
 
@@ -25,7 +25,7 @@ def reroll(table):
         score_table(table)
         print(tabulate([["Roll " + str(rolls)]], tablefmt="grid"))
         draw_dice(dice)
-        if rolls == 3:
+        if rolls == 3 or len(set(dice)) == 1 and table[3][12] == "Yes":
             return table
         while again not in ["y", "n", "yes", "no"]:
             again = input("\nDo you want to reroll? Y/N: ").lower()
@@ -87,7 +87,6 @@ def roll_score(table, dice):
                     all(num in dice for num in smstr2),
                     all(num in dice for num in smstr3)]):
                 table[2][i] += 30
-            pass
         elif i == 11:
             sorted = [*dice]
             sorted.sort()
@@ -95,7 +94,18 @@ def roll_score(table, dice):
                 table[2][i] += 40
         elif i == 12:
             if len(set(dice)) == 1:
-                table[2][i] += 50 if table[3][i] == "No" else 100
+                if table[3][i] == "No":
+                    table[2][i] += 50
+                else:
+                    if table[1][i] > 0:
+                        table[1][i] += 100
+                    if table[3][dice[0]] == "No":
+                        table[2] = ["Score\nTo Add", *[0]*13]
+                        table[2][dice[0]] = sum(dice)
+                    else:
+                        table[2] = ["Score\nTo Add", *
+                                    [0]*8, 25, 30, 40, 50, sum(dice)]
+                    return table
         else:
             table[2][i] += sum(dice)
     return table
@@ -103,22 +113,21 @@ def roll_score(table, dice):
 
 def score_table(table):
     # table for all 3 rows, table[:2] for first 2 rows
-
     print(tabulate(table[:4], tablefmt="grid"))
     print(tabulate(table[4:6], tablefmt="grid"))
 
 
 def game(table):
     turn = 1
-    while turn <= 13:
+    while turn <= 13: 
         print(tabulate([["Turn " + str(turn)]], tablefmt="grid"))
         table = reroll(table)
         table = add_score(table)
+        sum6 = sum(table[1][1:7])
         table[2] = ["Score\nTo Add", *[0]*13]
-        print(table[1][1:7], "hi")
-        table[4][1] = 35 if sum(table[1][1:7]) >= 63 else 0
+        table[4][0] = str(63 - sum6) + " to Bonus" if sum6 < 63 else "Bonus" 
+        table[4][1] = 35 if sum6 >= 63 else 0
         table[5][1] = sum(table[1][1:]) + table[4][1]
-        # score_table(table)
         turn += 1
     print("Game Over! Your Final Score is " + str(table[5][1]))
 
@@ -142,8 +151,6 @@ def add_score(table):
     table[1][index] += table[2][index]
     table[3][index] = "Yes"
     return table
-# Add 2nd and 3rd yahtzee 100 automatically
-# Joker rules?
 
 
 if __name__ == "__main__":
