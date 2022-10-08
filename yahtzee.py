@@ -15,8 +15,9 @@ def main():
 
 def reroll(table):
     dice = []
-    for _ in range(5):
-        dice.append(math.ceil(random() * 6))
+    # for _ in range(5):
+    #     dice.append(math.ceil(random() * 6))
+    dice = [5, 5, 5, 5, 5]
     rolls = 1
     again = None
     select = None
@@ -24,7 +25,7 @@ def reroll(table):
         table = roll_score(table, dice)
         score_table(table)
         print(tabulate([["Roll " + str(rolls)]], tablefmt="grid"))
-        draw_dice(dice)
+        print(draw_dice(dice))
         if rolls == 3 or len(set(dice)) == 1 and table[3][12] == "Yes":
             return table
         while again not in ["y", "n", "yes", "no"]:
@@ -52,7 +53,7 @@ def reroll(table):
                         break
             for i in set(select):
                 dice[i] = math.ceil(random() * 6)
-            draw_dice(dice)
+            print(draw_dice(dice))
             again = None
             rolls += 1
         else:
@@ -62,7 +63,7 @@ def reroll(table):
 
 def draw_dice(list):
     d6 = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"]
-    print(tabulate([[d6[i-1] for i in list]], tablefmt="grid"))
+    return (tabulate([[d6[i-1] for i in list]], tablefmt="grid"))
 
 
 def roll_score(table, dice):
@@ -97,17 +98,21 @@ def roll_score(table, dice):
                 if table[3][i] == "No":
                     table[2][i] += 50
                 else:
-                    if table[1][i] > 0:
-                        table[1][i] += 100
-                    if table[3][dice[0]] == "No":
-                        table[2] = ["Score\nTo Add", *[0]*13]
-                        table[2][dice[0]] = sum(dice)
-                    else:
-                        table[2] = ["Score\nTo Add", *
-                                    [0]*8, 25, 30, 40, 50, sum(dice)]
-                    return table
+                    return bonus(table, dice)
         else:
             table[2][i] += sum(dice)
+    return table
+
+
+def bonus(table, dice):
+    if table[1][12] > 0:
+        table[1][12] += 100
+    if table[3][dice[0]] == "No":
+        table[2] = ["Score\nTo Add", *[0]*13]
+        table[2][dice[0]] = sum(dice)
+    else:
+        table[2] = ["Score\nTo Add", *
+                    [0]*8, 25, 30, 40, 50, sum(dice)]
     return table
 
 
@@ -119,13 +124,13 @@ def score_table(table):
 
 def game(table):
     turn = 1
-    while turn <= 13: 
+    while turn <= 13:
         print(tabulate([["Turn " + str(turn)]], tablefmt="grid"))
         table = reroll(table)
         table = add_score(table)
         sum6 = sum(table[1][1:7])
         table[2] = ["Score\nTo Add", *[0]*13]
-        table[4][0] = str(63 - sum6) + " to Bonus" if sum6 < 63 else "Bonus" 
+        table[4][0] = str(63 - sum6) + " to Bonus" if sum6 < 63 else "Bonus"
         table[4][1] = 35 if sum6 >= 63 else 0
         table[5][1] = sum(table[1][1:]) + table[4][1]
         turn += 1
