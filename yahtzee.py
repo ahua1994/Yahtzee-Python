@@ -15,9 +15,8 @@ def main():
 
 def reroll(table):
     dice = []
-    # for _ in range(5):
-    #     dice.append(math.ceil(random() * 6))
-    dice = [5, 5, 5, 5, 5]
+    for _ in range(5):
+        dice.append(math.ceil(random() * 6)) 
     rolls = 1
     again = None
     select = None
