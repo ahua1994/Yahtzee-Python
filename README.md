@@ -5,6 +5,8 @@ Written in Python By Andy Hua for CS50P
 
 ### Youtube DEMO:
 
+https://youtu.be/sKuwJnGtdt0
+
 ### Rules:
 
 https://cdn.website-editor.net/d5df4a1da9404be58e00074a943b265c/files/uploaded/Yahtzee%2520Rules.pdf
