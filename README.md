@@ -24,3 +24,5 @@ I learned a lot working on this project, making use of functions I never knew ex
 If any human is reading this, I would greatly appreciate feedback on any of my work.
 
 This was CS50.
+
+![YahtzeeGif](https://github.com/ahua1994/Yahtzee-Python/blob/master/YahtzeeInPython.gif)
